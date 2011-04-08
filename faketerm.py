@@ -97,12 +97,9 @@ def play(contexts):
                 except Exception:
                     break
         while 1:
-            break
             c = win.getch()
-            if c in (10, 27): # return or escape
+            if c == 27:
                 break
-#            else:
-#                win.addstr(repr(c))
     finally:
         curses.reset_shell_mode()
 
