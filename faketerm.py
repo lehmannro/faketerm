@@ -67,7 +67,13 @@ class python(Context):
     pass
 
 def main(source):
+    # gather script with presentation instructions
     execfile(source)
+
+    # now, play the presentation
+    play(CONTEXTS)
+
+def play(contexts):
     stdin = sys.stdin.fileno()
     try:
         win = curses.initscr()
