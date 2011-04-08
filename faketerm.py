@@ -18,7 +18,7 @@ class Context:
     def write(self, line):
         if line != '\n':
             self.buffer.append(line)
-    def __call__(self, win):
+    def prepare(self, win):
         pass
     def process(self):
         raise NotImplementedError
@@ -27,7 +27,7 @@ class slide(Context):
     def __init__(self, title):
         self.title = title
         Context.__init__(self)
-    def __call__(self, win):
+    def prepare(self, win):
         win.addstr(self.title + "\n")
         win.addstr(len(self.title) * "=" + "\n\n")
     def process(self, win, c):
@@ -39,7 +39,7 @@ class shell(Context):
     def __init__(self):
         self.terminated = False
         Context.__init__(self)
-    def __call__(self, win):
+    def prepare(self, win):
         win.addstr(self.ps1)
         if self.buffer:
             self.pos = 0
@@ -89,7 +89,7 @@ def play(contexts):
                     curses.delay_output(5)
             curses.delay_output(200)
             win.clear()
-            context(win)
+            context.prepare(win)
             while 1:
                 c = win.getch()
                 try:
