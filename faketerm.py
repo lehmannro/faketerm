@@ -10,13 +10,14 @@ class Context:
     def __init__(self):
         self.buffer = []
         CONTEXTS.append(self)
+        self.softspace = 0
     def __enter__(self):
         self.stdout_orig = sys.stdout
         sys.stdout = self
     def __exit__(self, exc_type, exc_value, traceback):
         sys.stdout = self.stdout_orig
     def write(self, line):
-        if line != '\n':
+        if not (self.softspace and line == '\n'):
             self.buffer.append(line)
     def prepare(self, win):
         pass
