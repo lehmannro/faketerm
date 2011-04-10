@@ -77,6 +77,12 @@ class pyshell(shell):
     ps1 = ">>> "
     ps2 = "... "
 
+    def throw(self, exc):
+        print ("Traceback (most recent call last):\n"
+               "  File \"<stdin>\", line 1, in <module>\n"
+               "%s: %s" % (exc.__class__.__name__, exc))
+
+
 class python(Context):
     pass
 
