@@ -43,6 +43,7 @@ class slide(Context):
 
 class shell(Context):
     ps1 = "$ "
+    ps2 = "> "
     def __init__(self):
         self.terminated = False
         Context.__init__(self)
@@ -63,11 +64,18 @@ class shell(Context):
                 self.prepare(win)
                 return
         if self.pos < self.len:
-            win.addstr(self.cmd[self.pos])
+            ch = self.cmd[self.pos]
+            if ch == '\n':
+                if c == 10:
+                    ch += self.ps2
+                else:
+                    return
+            win.addstr(ch)
             self.pos += 1
 
 class pyshell(shell):
     ps1 = ">>> "
+    ps2 = "... "
 
 class python(Context):
     pass
