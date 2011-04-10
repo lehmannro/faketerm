@@ -34,6 +34,9 @@ class slide(Context):
     def process(self, win, c):
         if c in (10, 32): # space or return
             win.addstr("* %s\n" % self.buffer.pop(0))
+            if not self.buffer:
+                y, x = win.getmaxyx()
+                win.move(y-1, x-1)
 
 class shell(Context):
     ps1 = "$ "
