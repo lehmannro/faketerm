@@ -4,12 +4,14 @@ from __future__ import with_statement
 import curses
 import sys
 
+TRANSITION = '*'
 CONTEXTS = []
 
-class Context:
-    def __init__(self):
-        self.buffer = []
+class Context(object):
+    def __init__(self, transition=TRANSITION):
         CONTEXTS.append(self)
+        self.buffer = []
+        self.transition = transition
         self.softspace = 0
     def __enter__(self):
         self.stdout_orig = sys.stdout
@@ -81,15 +83,20 @@ def play(contexts):
     try:
         win = curses.initscr()
         curses.noecho()
-        for context in CONTEXTS:
-            if 1: # transition effect
-                y, x = win.getmaxyx()
-                for i in xrange(x):
-                    for j in xrange(y):
-                        if i != x-1 or j != y-1:
-                            win.addch(j, i, 42)
-                    win.refresh()
-                    curses.delay_output(5)
+        for context in contexts:
+            if context.transition is not None: # transition effect
+                if isinstance(context.transition, int):
+                    for _ in xrange(context.transition):
+                        curses.flash()
+                        curses.delay_output(350)
+                else:
+                    y, x = win.getmaxyx()
+                    for i in xrange(x):
+                        for j in xrange(y):
+                            if i != x-1 or j != y-1:
+                                win.addch(j, i, ord(context.transition))
+                        win.refresh()
+                        curses.delay_output(7)
             curses.delay_output(200)
             win.clear()
             context.prepare(win)
