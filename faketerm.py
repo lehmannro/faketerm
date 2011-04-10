@@ -58,7 +58,7 @@ class shell(Context):
                 raise StopIteration
             if self.pos >= self.len:
                 win.addstr("\n%s\n" % self.reply)
-                self(win)
+                self.prepare(win)
                 return
         if self.pos < self.len:
             win.addstr(self.cmd[self.pos])
