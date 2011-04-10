@@ -16,6 +16,7 @@ class Context(object):
     def __enter__(self):
         self.stdout_orig = sys.stdout
         sys.stdout = self
+        return self
     def __exit__(self, exc_type, exc_value, traceback):
         sys.stdout = self.stdout_orig
     def write(self, line):
