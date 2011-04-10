@@ -49,7 +49,6 @@ class shell(Context):
             self.pos = 0
             self.cmd = self.buffer.pop(0)
             self.len = len(self.cmd)
-            self.reply = self.buffer.pop(0)
         else:
             self.terminated = True
     def process(self, win, c):
@@ -57,7 +56,7 @@ class shell(Context):
             if self.terminated:
                 raise StopIteration
             if self.pos >= self.len:
-                win.addstr("\n%s\n" % self.reply)
+                win.addstr("\n%s\n" % self.buffer.pop(0))
                 self.prepare(win)
                 return
         if self.pos < self.len:
