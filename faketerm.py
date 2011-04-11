@@ -5,7 +5,7 @@ import curses
 import sys
 
 TRANSITION = '*'
-CONTEXTS = []
+TIMELINE = []
 
 class Slide(object):
     """Base class for all slides.
@@ -19,9 +19,11 @@ class Slide(object):
 
     """
     def __init__(self, transition=TRANSITION):
-        CONTEXTS.append(self)
-        self.buffer = []
+        # needed by mainloop
+        TIMELINE.append(self)
         self.transition = transition
+        # file-like interface
+        self.buffer = []
         self.softspace = 0
     def __enter__(self):
         self.stdout_orig = sys.stdout
@@ -116,10 +118,10 @@ def main(source):
                 print
                 print
                 print "by %s" % (mod['__author__'],)
-        CONTEXTS.insert(0, CONTEXTS.pop()) # move to front
+        TIMELINE.insert(0, TIMELINE.pop()) # move to front
 
     # now, play the presentation
-    play(CONTEXTS)
+    play(TIMELINE)
 
 def play(contexts):
     stdin = sys.stdin.fileno()
