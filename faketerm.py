@@ -133,6 +133,7 @@ def play(contexts):
                 break
     finally:
         curses.reset_shell_mode()
+        curses.endwin()
 
 if __name__ == '__main__':
     import sys
