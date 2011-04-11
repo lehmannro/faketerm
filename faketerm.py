@@ -96,9 +96,6 @@ class pyshell(shell):
                "%s: %s" % (exc.__class__.__name__, exc))
 
 
-class python(Context):
-    pass
-
 def main(source):
     # gather script with presentation instructions
     import runpy
