@@ -27,6 +27,19 @@ class Context(object):
     def process(self):
         raise NotImplementedError
 
+class chapter(Context):
+    def __init__(self, text='', transition=TRANSITION):
+        Context.__init__(self, transition=transition)
+        self.buffer.extend(text.splitlines())
+    def prepare(self, win):
+        y, x = win.getmaxyx()
+        offset = (y - len(self.buffer)) // 2
+        for i, line in enumerate(self.buffer):
+            win.addstr(offset + i, 0, line.center(x-1))
+    def process(self, win, c):
+        if c == 10: # return
+            raise StopIteration
+
 class slide(Context):
     def __init__(self, title):
         self.title = title
@@ -88,7 +101,15 @@ class python(Context):
 
 def main(source):
     # gather script with presentation instructions
-    execfile(source)
+    import runpy
+    mod = runpy.run_path(source, globals())
+    if '__doc__' in mod:
+        with chapter(mod['__doc__'], transition=None):
+            if '__author__' in mod:
+                print
+                print
+                print "by %s" % (mod['__author__'],)
+        CONTEXTS.insert(0, CONTEXTS.pop()) # move to front
 
     # now, play the presentation
     play(CONTEXTS)
