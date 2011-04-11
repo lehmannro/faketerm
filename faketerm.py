@@ -8,6 +8,16 @@ TRANSITION = '*'
 CONTEXTS = []
 
 class Context(object):
+    """Base class for all slides.
+
+    It maintains an internal `buffer` of lines to display.  How these are
+    interpreted exactly depends on the individual subclass.  All lines
+    `print`ed while the context is activated are automatically added to it.
+
+    You activate a context by entering it through the ``with`` statement.  (It
+    acts as a *context manager.*)
+
+    """
     def __init__(self, transition=TRANSITION):
         CONTEXTS.append(self)
         self.buffer = []
