@@ -121,6 +121,12 @@ def play(contexts):
                     context.process(win, c)
                 except Exception:
                     break
+
+        # finished
+        y, x = win.getmaxyx()
+        outro = "  Press ESC to exit presentation mode. "
+        win.addnstr(y-1, max(0, x-len(outro)-1), outro, x-1,
+                    curses.A_REVERSE)
         while 1:
             c = win.getch()
             if c == 27:
