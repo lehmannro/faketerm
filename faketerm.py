@@ -7,7 +7,7 @@ import sys
 TRANSITION = '*'
 CONTEXTS = []
 
-class Context(object):
+class Slide(object):
     """Base class for all slides.
 
     It maintains an internal `buffer` of lines to display.  How these are
@@ -37,9 +37,9 @@ class Context(object):
     def process(self):
         raise NotImplementedError
 
-class chapter(Context):
+class chapter(Slide):
     def __init__(self, text='', transition=TRANSITION):
-        Context.__init__(self, transition=transition)
+        Slide.__init__(self, transition=transition)
         self.buffer.extend(text.splitlines())
     def prepare(self, win):
         y, x = win.getmaxyx()
@@ -50,10 +50,10 @@ class chapter(Context):
         if c == 10: # return
             raise StopIteration
 
-class slide(Context):
+class bullets(Slide):
     def __init__(self, title):
         self.title = title
-        Context.__init__(self)
+        Slide.__init__(self)
     def prepare(self, win):
         win.addstr(self.title + "\n")
         win.addstr(len(self.title) * "=" + "\n\n")
@@ -64,12 +64,12 @@ class slide(Context):
                 y, x = win.getmaxyx()
                 win.move(y-1, x-1)
 
-class shell(Context):
+class shell(Slide):
     ps1 = "$ "
     ps2 = "> "
     def __init__(self):
         self.terminated = False
-        Context.__init__(self)
+        Slide.__init__(self)
     def prepare(self, win):
         win.addstr(self.ps1)
         if self.buffer:

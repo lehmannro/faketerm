@@ -6,7 +6,7 @@ about Faketerm
 
 __author__ = "John Doe"
 
-with slide("Example slide"):
+with bullets("Example slide"):
     print "first bullet point"
     print "second bullet point"
     print "third bullet point"
