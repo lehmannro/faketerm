@@ -1,5 +1,34 @@
 #!/usr/bin/env python
+"""
+Faketerm
+========
 
+**Faketerm** allows you to play presentations on your terminal.  You can use it
+as a *playback device* if you want to show shell examples, which naturally live
+on the console.
+
+It is inspired by `PlayerPiano <http://pypi.python.org/pypi/PlayerPiano>`_.
+
+There are actually two phases to a presentation:  parsing and display.
+
+During the parsing phase the presentation script is run (see `main`).  All
+created `Slide`s are automatically added sequentially to the timeline (which is
+global -- this is a one-shot program).  Parsing is finished when the script ran
+completely.  If the script includes a docstring it is added as a title
+slide (a `chapter`).
+
+The display phase is the application's mainloop (see `play`).  It initializes
+`curses` and replays all slides, ordered and one after another.  When a slide
+has been determined to be activated control is mostly handed over to it and
+`Slide.prepare` is called.  Events are still received by the mainloop, it just
+passes them down to the active slide via `Slide.process`.
+
+When a slide is finished it just needs to throw an error.  Transitions are
+shown as requested by the *following* slide (which makes sense as you can have
+a transition before your first explicitly added slide due to the automatically
+generated title slide, but never after your last slide).
+
+"""
 from __future__ import with_statement
 import curses
 import sys
@@ -8,14 +37,26 @@ TRANSITION = '*'
 TIMELINE = []
 
 class Slide(object):
-    """Base class for all slides.
+    """Base class for all slides.  It parses the presentation script and
+    manages the display.  While the former is generically implemented in this
+    class, the latter needs to be implemented by subclasses.
 
     It maintains an internal `buffer` of lines to display.  How these are
     interpreted exactly depends on the individual subclass.  All lines
     `print`ed while the context is activated are automatically added to it.
+    Slides also partially implement the `file` protocol to achieve this, ie.
+    `softspace` and `write`.
 
-    You activate a context by entering it through the ``with`` statement.  (It
-    acts as a *context manager.*)
+    Presentation authors add information to a slide by entering it through the
+    ``with`` statement.  It acts as a *context manager.*
+
+    >>> a = Slide()
+    >>> with a:  # usually collapsed to ``with Slide():``
+    ...     print "first line"
+    ...     print "second line"
+    ...
+    >>> a.buffer
+    ['first line', 'second line']
 
     """
     def __init__(self, transition=TRANSITION):
@@ -25,40 +66,64 @@ class Slide(object):
         # file-like interface
         self.buffer = []
         self.softspace = 0
+
     def __enter__(self):
         self.stdout_orig = sys.stdout
         sys.stdout = self
         return self
     def __exit__(self, exc_type, exc_value, traceback):
         sys.stdout = self.stdout_orig
+
     def write(self, line):
         if not (self.softspace and line == '\n'):
             self.buffer.append(line)
+
     def prepare(self, win):
+        """Called when control is handed over to a slide.
+
+        :param win: curses window
+
+        """
         pass
-    def process(self):
+
+    def process(self, win, c):
+        """Called when an event is received while activated.
+
+        :param win: curses window
+        :param c: character code
+
+        """
         raise NotImplementedError
 
 class chapter(Slide):
+    """Cover page for individual chapters.  All text is centered."""
     def __init__(self, text='', transition=TRANSITION):
         Slide.__init__(self, transition=transition)
         self.buffer.extend(text.splitlines())
+
     def prepare(self, win):
         y, x = win.getmaxyx()
         offset = (y - len(self.buffer)) // 2
         for i, line in enumerate(self.buffer):
             win.addstr(offset + i, 0, line.center(x-1))
+
     def process(self, win, c):
         if c == 10: # return
             raise StopIteration
 
 class bullets(Slide):
+    """List of items.  Each bullet point is shown sequentially, after pressing
+    Enter or Space.
+
+    """
     def __init__(self, title):
         self.title = title
         Slide.__init__(self)
+
     def prepare(self, win):
         win.addstr(self.title + "\n")
         win.addstr(len(self.title) * "=" + "\n\n")
+
     def process(self, win, c):
         if c in (10, 32): # space or return
             win.addstr("* %s\n" % self.buffer.pop(0))
@@ -67,6 +132,13 @@ class bullets(Slide):
                 win.move(y-1, x-1)
 
 class shell(Slide):
+    """Shell interaction.  Input is shown after each keypress, output after you
+    press Enter.  I/O is added by individual print statements.
+
+    :attr ps1: initial prompt
+    :attr ps2: prompt after an embedded newline
+
+    """
     ps1 = "$ "
     ps2 = "> "
 
@@ -105,6 +177,7 @@ class shell(Slide):
             self.pos += 1
 
 class pyshell(shell):
+    """A shell resembling the interactive Python interpreter."""
     ps1 = ">>> "
     ps2 = "... "
 
@@ -115,7 +188,7 @@ class pyshell(shell):
 
 
 def main(source):
-    # gather script with presentation instructions
+    """Parse a script of presentation instructions and run it."""
     import runpy
     mod = runpy.run_path(source, globals())
     if '__doc__' in mod:
@@ -130,12 +203,13 @@ def main(source):
     play(TIMELINE)
 
 def play(contexts):
-    stdin = sys.stdin.fileno()
+    """Play back a sequence of `contexts`."""
     try:
         win = curses.initscr()
         curses.noecho()
         for context in contexts:
-            if context.transition is not None: # transition effect
+            # transition effect
+            if context.transition is not None:
                 if isinstance(context.transition, int):
                     for _ in xrange(context.transition):
                         curses.flash()
@@ -148,9 +222,13 @@ def play(contexts):
                                 win.addch(j, i, ord(context.transition))
                         win.refresh()
                         curses.delay_output(7)
+
+            # load next slide
             curses.delay_output(200)
             win.clear()
             context.prepare(win)
+
+            # mainloop
             while 1:
                 c = win.getch()
                 try:
