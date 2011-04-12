@@ -69,10 +69,15 @@ class bullets(Slide):
 class shell(Slide):
     ps1 = "$ "
     ps2 = "> "
+
     def __init__(self):
         self.terminated = False
         Slide.__init__(self)
+
     def prepare(self, win):
+        self.next_action(win)
+
+    def next_action(self, win):
         win.addstr(self.ps1)
         if self.buffer:
             self.pos = 0
@@ -80,13 +85,14 @@ class shell(Slide):
             self.len = len(self.cmd)
         else:
             self.terminated = True
+
     def process(self, win, c):
         if c == 10:
             if self.terminated:
                 raise StopIteration
             if self.pos >= self.len:
                 win.addstr("\n%s\n" % self.buffer.pop(0))
-                self.prepare(win)
+                self.next_action(win)
                 return
         if self.pos < self.len:
             ch = self.cmd[self.pos]
