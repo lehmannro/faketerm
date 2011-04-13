@@ -34,8 +34,10 @@ from __future__ import with_statement
 import curses
 import sys
 
-TRANSITION = '*'
+
+TRANSITION = "*"
 TIMELINE = []
+
 
 class Slide(object):
     """Base class for all slides.  It parses the presentation script and
@@ -112,25 +114,32 @@ class chapter(Slide):
         if c == 10: # return
             raise StopIteration
 
+
+BULLET = "*"
+UNDERLINE = "="
+
 class bullets(Slide):
     """List of items.  Each bullet point is shown sequentially, after pressing
     Enter or Space.
 
     """
-    def __init__(self, title):
+    def __init__(self, title, bullet=BULLET, underline=UNDERLINE):
         self.title = title
+        self.bullet = bullet
+        self.underline = underline
         Slide.__init__(self)
 
     def prepare(self, win):
         win.addstr(self.title + "\n")
-        win.addstr(len(self.title) * "=" + "\n\n")
+        win.addstr(len(self.title) * self.underline + "\n\n")
 
     def process(self, win, c):
         if c in (10, 32): # space or return
-            win.addstr("* %s\n" % self.buffer.pop(0))
+            win.addstr("%s %s\n" % (self.bullet, self.buffer.pop(0)))
             if not self.buffer:
                 y, x = win.getmaxyx()
                 win.move(y-1, x-1)
+
 
 class shell(Slide):
     """Shell interaction.  Input is shown after each keypress, output after you
