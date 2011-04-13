@@ -260,6 +260,6 @@ def play(contexts):
         curses.reset_shell_mode()
         curses.endwin()
 
+
 if __name__ == '__main__':
-    import sys
     main(sys.argv[1])
