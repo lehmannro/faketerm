@@ -61,11 +61,16 @@ class Slide(object):
     >>> a.buffer
     ['first line', 'second line']
 
+    Transitions can be configured by setting :attr:`transition`.  If it is a
+    character the screen will be swiped clean with that glyph;  the screen will
+    flash that number of times if it is an integer.  To have a blank
+    transition, set it to ``None``.
+
     """
-    def __init__(self, transition=TRANSITION):
+    def __init__(self):
         # needed by mainloop
         TIMELINE.append(self)
-        self.transition = transition
+        self.transition = TRANSITION
         # file-like interface
         self.buffer = []
         self.softspace = 0
