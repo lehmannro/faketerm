@@ -7,7 +7,8 @@ Faketerm
 as a *playback device* if you want to show shell examples, which naturally live
 on the console.
 
-It is inspired by `PlayerPiano <http://pypi.python.org/pypi/PlayerPiano>`_.
+It is inspired by `PlayerPiano <http://pypi.python.org/pypi/PlayerPiano>`_ and
+requires Python 2.7.
 
 There are actually two phases to a presentation:  parsing and display.
 
