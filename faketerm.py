@@ -132,6 +132,7 @@ class bullets(Slide):
         self.title = title
         self.bullet = bullet
         self.underline = underline
+        self.last = None
         Slide.__init__(self)
 
     def prepare(self, win):
@@ -140,7 +141,13 @@ class bullets(Slide):
 
     def process(self, win, c):
         if c in (10, 32): # space or return
-            win.addstr("%s %s\n" % (self.bullet, self.buffer.pop(0)))
+            win.deleteln()
+            if self.last is not None:
+                win.addstr("%s %s\n" % (self.bullet, self.last))
+            self.last = self.buffer.pop()
+            win.addstr("%s %s" % (self.bullet, self.last), curses.A_BOLD)
+            y, x = win.getyx()
+            win.move(y, 0)
             if not self.buffer:
                 y, x = win.getmaxyx()
                 win.move(y-1, x-1)
