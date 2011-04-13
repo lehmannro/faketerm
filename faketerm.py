@@ -98,11 +98,9 @@ class Slide(object):
         """
         raise NotImplementedError
 
+
 class chapter(Slide):
     """Cover page for individual chapters.  All text is centered."""
-    def __init__(self, text='', transition=TRANSITION):
-        Slide.__init__(self, transition=transition)
-        self.buffer.extend(text.splitlines())
 
     def prepare(self, win):
         y, x = win.getmaxyx()
@@ -202,7 +200,10 @@ def main(source):
     import runpy
     mod = runpy.run_path(source, globals())
     if '__doc__' in mod:
-        with chapter(mod['__doc__'], transition=None):
+        with chapter() as title:
+            title.transition = None
+            for line in mod['__doc__'].strip().splitlines():
+                print line
             if '__author__' in mod:
                 print
                 print
