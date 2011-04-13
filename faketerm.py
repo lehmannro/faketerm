@@ -102,6 +102,9 @@ class Slide(object):
         :param win: curses window
         :param c: character code
 
+        Slides should probably consume `buffer` in here.  They do not need to
+        copy it and can well exhaust it by the end of their lifetime.
+
         """
         raise NotImplementedError
 
