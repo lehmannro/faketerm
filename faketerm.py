@@ -7,6 +7,8 @@ Faketerm
 as a *playback device* if you want to show shell examples, which naturally live
 on the console.
 
+Run the example script through ``python faketerm.py example.py``.
+
 It is inspired by `PlayerPiano <http://pypi.python.org/pypi/PlayerPiano>`_ and
 requires Python 2.7.
 
