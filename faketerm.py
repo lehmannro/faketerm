@@ -150,7 +150,7 @@ class bullets(Slide):
             win.deleteln()
             if self.last is not None:
                 win.addstr("%s %s\n" % (self.bullet, self.last))
-            self.last = self.buffer.pop()
+            self.last = self.buffer.pop(0)
             win.addstr("%s %s" % (self.bullet, self.last), curses.A_BOLD)
             y, x = win.getyx()
             win.move(y, 0)
