@@ -31,6 +31,9 @@ shown as requested by the *following* slide (which makes sense as you can have
 a transition before your first explicitly added slide due to the automatically
 generated title slide, but never after your last slide).
 
+A finished presentation can be quit with the Escape key.  You are free to
+terminate the presentation at any time with Ctrl-C.
+
 """
 from __future__ import with_statement
 import curses
@@ -273,6 +276,8 @@ def play(contexts):
             c = win.getch()
             if c == 27:
                 break
+    except KeyboardInterrupt:
+        pass
     finally:
         curses.reset_shell_mode()
         curses.endwin()
