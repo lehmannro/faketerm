@@ -167,19 +167,24 @@ class shell(Slide):
     """Shell interaction.  Input is shown after each keypress, output after you
     press Enter.  I/O is added by individual print statements.
 
-    :attr ps1: initial prompt
+    :attr ps1: prompt shown in front of every input line
     :attr ps2: prompt after an embedded newline
+    :attr banner: initial text
 
     """
     cursor = True
     ps1 = "$ "
     ps2 = "> "
+    banner = ""
 
     def __init__(self):
         self.terminated = False
         Slide.__init__(self)
 
     def prepare(self, win):
+        win.addstr(self.banner)
+        if self.banner:
+            win.addch(10)
         self.next_action(win)
 
     def next_action(self, win):
@@ -213,6 +218,13 @@ class pyshell(shell):
     """A shell resembling the interactive Python interpreter."""
     ps1 = ">>> "
     ps2 = "... "
+
+    def __init__(self, version="2.7"):
+        self.banner = ("Python %s\n"
+            "Type \"help\", \"copyright\", \"credits\" or \"license\" for more"
+            " information.") % version
+        shell.__init__(self)
+
 
     def throw(self, exc):
         print ("Traceback (most recent call last):\n"
