@@ -71,7 +71,11 @@ class Slide(object):
     flash that number of times if it is an integer.  To have a blank
     transition, set it to ``None``.
 
+    The cursor will be hidden unless :attr:`cursor` is set to true.
+
     """
+    cursor = False
+
     def __init__(self):
         # needed by mainloop
         TIMELINE.append(self)
@@ -167,6 +171,7 @@ class shell(Slide):
     :attr ps2: prompt after an embedded newline
 
     """
+    cursor = True
     ps1 = "$ "
     ps2 = "> "
 
@@ -256,6 +261,7 @@ def play(contexts):
 
             # load next slide
             curses.delay_output(200)
+            curses.curs_set(context.cursor)
             win.clear()
             context.prepare(win)
 
