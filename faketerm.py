@@ -3,9 +3,10 @@
 Faketerm
 ========
 
-**Faketerm** allows you to play presentations on your terminal.  You can use it
+**Faketerm** allows you to give presentations on your terminal.  You can use it
 as a *playback device* if you want to show shell examples, which naturally live
-on the console.
+on the console.  This way you will never suffer from typos during your live
+demos again!
 
 Run the example script through ``python faketerm.py example.py``.
 
@@ -68,8 +69,8 @@ class Slide(object):
 
     Transitions can be configured by setting :attr:`transition`.  If it is a
     character the screen will be swiped clean with that glyph;  the screen will
-    flash that number of times if it is an integer.  To have a blank
-    transition, set it to ``None``.
+    flash that number of times if it is an integer.  To have no transition at
+    all, set it to ``None``.
 
     The cursor will be hidden unless :attr:`cursor` is set to true.
 
