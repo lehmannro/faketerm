@@ -202,7 +202,10 @@ class shell(Slide):
             if self.terminated:
                 raise StopIteration
             if self.pos >= self.len:
-                win.addstr("\n%s\n" % self.buffer.pop(0))
+                win.addstr("\n")
+                output = self.buffer.pop(0)
+                if output:
+                    win.addstr("%s\n" % output)
                 self.next_action(win)
                 return
         if self.pos < self.len:
