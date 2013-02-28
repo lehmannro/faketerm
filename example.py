@@ -6,6 +6,10 @@ about Faketerm
 
 __author__ = "John Doe"
 
+with vi("foo.py"):
+    print "#!python"
+    print "print 'syntax highlighting'[:1]"
+    print "return float(1 + 1)"
 with bullets("Example slide"):
     print "first bullet point"
     print "second bullet point"

@@ -233,6 +233,77 @@ class pyshell(shell):
                "%s: %s" % (exc.__class__.__name__, exc))
 
 
+from pygments.formatter import Formatter
+class CursesFormatter(Formatter):
+    def __init__(self, **options):
+        Formatter.__init__(self, **options)
+        #XXX distinct colors must fit, actually
+        if curses.can_change_color() and len(self.style) <= curses.COLORS:
+
+            # cache of registered RGB colors
+            colors = []
+            def init_color(rgb):
+                r, g, b = int(rgb[:2], 16), int(rgb[2:4], 16), int(rgb[4:], 16)
+                curses.init_color(len(colors) + 1,
+                    r * 1000 / 255, g * 1000 / 255, b * 1000 / 255)
+                colors.append(rgb)
+            pairs = []
+            self.pairs = {}
+            self.bolds = set()
+            for token, style in self.style:
+                #XXX bg
+                fg = style['color'] or 'ffffff'
+                bg = style['bgcolor']
+                if fg not in colors:
+                    init_color(fg)
+
+                if style['bold']:
+                    self.bolds.add(token)
+
+                pair = (fg, bg)
+                sys.stderr.write("%r gets %r\n" % (token, pair))
+                if pair not in pairs:
+                    curses.init_pair(len(pairs) + 1,
+                        colors.index(fg)+1, -1)
+                    pairs.append(pair)
+
+                self.pairs[token] = pairs.index(pair)
+
+    def format(self, tokenstream, outfile):
+        nl, line = True, 1
+        for ttype, value in tokenstream:
+            if nl:
+                outfile.addstr('%*s ' % (3, line), curses.color_pair(0))
+                nl = False
+            attr = curses.color_pair(self.pairs[ttype]+1)
+            if ttype in self.bolds:
+                attr |= curses.A_BOLD
+            outfile.addstr(value, attr)
+            if value == '\n':
+                line += 1
+                nl = True
+
+import pygments, pygments.lexers, pygments.styles
+class vi(shell):
+    def __init__(self, filename, style='monokai'):
+        # recommended: colorful native fruity bw emacs monokai perldoc
+        shell.__init__(self)
+        self.filename = filename
+        self.style = pygments.styles.get_style_by_name(style)
+
+    def prepare(self, win):
+        formatter = CursesFormatter(style=self.style)
+        lexer = pygments.lexers.get_lexer_for_filename(self.filename)
+        pygments.highlight("\n".join(self.buffer), lexer, formatter, win)
+        y, x = win.getmaxyx()
+        win.move(y-2, 0)
+        win.addstr(self.filename.ljust(x-1), curses.A_REVERSE)
+
+    def process(self, win, c):
+        if c == 10:
+            raise StopIteration
+
+
 def main(source):
     """Parse a script of presentation instructions and run it."""
     import runpy
@@ -255,6 +326,8 @@ def play(contexts):
     """Play back a sequence of `contexts`."""
     try:
         win = curses.initscr()
+        curses.start_color()
+        curses.use_default_colors()
         curses.noecho()
         for context in contexts:
             # transition effect
