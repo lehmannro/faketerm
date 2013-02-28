@@ -310,8 +310,10 @@ class vi(shell):
 def main(source):
     """Parse a script of presentation instructions and run it."""
     import runpy
-    mod = runpy.run_path(source, globals())
-    if '__doc__' in mod:
+    ctx = globals()
+    ctx.pop('__doc__')
+    mod = runpy.run_path(source, ctx)
+    if '__doc__' in mod and mod['__doc__'] is not None:
         with chapter() as title:
             title.transition = None
             for line in mod['__doc__'].strip().splitlines():
